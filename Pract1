@@ -1,0 +1,47 @@
+Practical 1 — Creating Simple Application
+and Testing Application
+A. Using Visual Studio — College PC
+Step 1: Open Visual Studio
+Start → Visual Studio
+Select:
+Create a new project
+Step 2: Select project
+Search:
+ASP.NET Core Web App (Model-View-Controller)
+Select it → Next
+Step 3: Configure project
+Project Name: Practical1
+Click Next.
+Step 4: Additional Information
+Select the available .NET version.
+Authentication Type: None
+Configure for HTTPS: ✓
+Docker: No
+Click Create. Step 5: Open the View
+In Solution Explorer:
+Views
+↓
+Home
+↓
+Index.cshtml
+Replace the contents with:
+@{
+ViewData["Title"] = "Practical 1";
+}
+<h1>My First ASP.NET Core MVC Application</h1>
+<p>Welcome to my C# practical.</p>
+<p>This application is running successfully.</p>
+Save:
+Ctrl + S
+Step 6: Run
+Click the green Run ▶ button at the top.
+OR:
+Ctrl + F5
+Step 7: Check Output
+The browser opens automatically. Example:
+https://localhost:7000
+Expected output:
+My First ASP.NET Core MVC Application
+Welcome to my C# practical.
+This application is running successfully.
+Practical 1 completed.
