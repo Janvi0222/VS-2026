@@ -1,0 +1,133 @@
+Create project -> asp.net core web api-> RoutingDIExample
+
+program.cs:
+using RoutingDIExample.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+
+builder.Services.AddScoped<IStudentService, StudentService>();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+
+
+right click on Controller-> add controller-> api->empty-> StudentController.cs
+using Microsoft.AspNetCore.Mvc;
+using RoutingDIExample.Services;
+
+namespace RoutingDIExample.Controllers
+{
+    [ApiController]
+    [Route("api/students")]
+    public class StudentController : ControllerBase
+    {
+        private readonly IStudentService _studentService;
+
+        public StudentController(IStudentService studentService)
+        {
+            _studentService = studentService;
+        }
+
+        [HttpGet("{id}/details")]
+        public IActionResult GetStudentDetails(int id)
+        {
+            var student = _studentService.GetStudentDetails(id);
+            return Ok(student);
+        }
+
+        [HttpGet("{id}/details/name")]
+        public IActionResult GetStudentName(int id)
+        {
+            var name = _studentService.GetStudentName(id);
+            return Ok(name);
+        }
+    }
+}
+
+right click on project-> add folder -> Service -> IStundentService.cs
+namespace RoutingDIExample.Services
+{
+    public interface IStudentService
+    {
+        object GetStudentDetails(int id);
+
+        string GetStudentName(int id);
+    }
+}
+
+
+again under Service- > StudentService.cs
+namespace RoutingDIExample.Services
+{
+    public class StudentService : IStudentService
+    {
+        public object GetStudentDetails(int id)
+        {
+            if (id == 101)
+            {
+                return new
+                {
+                    Id = 101,
+                    Name = "Rahul Sharma",
+                    Course = "BCA"
+                };
+            }
+
+            if (id == 102)
+            {
+                return new
+                {
+                    Id = 102,
+                    Name = "Priya Patil",
+                    Course = "BCA"
+                };
+            }
+
+            if (id == 103)
+            {
+                return new
+                {
+                    Id = 103,
+                    Name = "Amit Joshi",
+                    Course = "BCA"
+                };
+            }
+
+            return new
+            {
+                Message = "Student not found"
+            };
+        }
+
+        public string GetStudentName(int id)
+        {
+            if (id == 101)
+                return "Rahul Sharma";
+
+            if (id == 102)
+                return "Priya Patil";
+
+            if (id == 103)
+                return "Amit Joshi";
+
+            return "Student not found";
+        }
+    }
+}
