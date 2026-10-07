@@ -1,0 +1,165 @@
+Add -> Asp.net core web app mvc
+
+Controller -> Add controller -> SecurityController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+namespace SecurityDemo.Controllers
+{
+    public class SecurityController : Controller
+    {
+        public IActionResult PublicPage()
+        {
+            return View();
+        }
+        [Authorize]
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+        [Authorize(Roles = "Admin")]
+        public IActionResult Admin()
+        {
+            return View();
+        }
+    }
+}
+
+Views-> Add view -> Dashboard
+@{
+    ViewData["Title"] = "Security Dashboard";
+}
+
+<div class="text-center">
+    <h1>Welcome to Security Dashboard</h1>
+
+    <p>
+        This page can only be accessed by authenticated users.
+    </p>
+
+    <p>
+        You are successfully logged in.
+    </p>
+</div>
+
+
+Views -> create fodler Security -> Add views on Security -> PublicPage.cshtml
+@{
+    ViewData["Title"] = "Public Page";
+}
+
+<div class="text-center">
+    <h1>Public Page</h1>
+
+    <p>
+        This page can be accessed by all users without login.
+    </p>
+</div>
+
+Install Required tools:
+Tools -> Nuget package manager ->> package manager console:
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
+Install-Package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+program.cs
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using SecurityDemo.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<IdentityUser>(
+    options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var roleManager =
+        services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roles = { "Admin", "User" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(
+                new IdentityRole(role));
+        }
+    }
+}
+
+app.Run();
+
+
+Views-> security-> Admin.cshtml
+@{
+    ViewData["Title"] = "Admin Page";
+}
+
+<div class="text-center">
+    <h1>Admin Panel</h1>
+
+    <p>
+        Only users with the Admin role can access this page.
+    </p>
+</div>
+
+Views/Shared/_Layout.cshtml:
+<li class="nav-item">
+    <a class="nav-link text-dark"
+       asp-controller="Security"
+       asp-action="PublicPage">
+        Public Page
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link text-dark"
+       asp-controller="Security"
+       asp-action="Dashboard">
+        Dashboard
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link text-dark"
+       asp-controller="Security"
+       asp-action="Admin">
+        Admin
+    </a>
+</li>
