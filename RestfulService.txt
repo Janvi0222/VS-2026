@@ -1,0 +1,158 @@
+Create project  -> ASP.NET web api -> StudentRESTAPI
+
+Right click on Project -> new folder models -> right click on models -> add class ->student.cs
+namespace StudentRESTAPI.Models
+{
+public class Student
+{
+public int Id { get; set; }
+
+public string Name { get; set; } = string.Empty;
+
+public string Course { get; set; } = string.Empty;
+
+public int Age { get; set; }
+}
+}
+
+Conroller -> add contoller ->select api ->StudentController.cs
+using Microsoft.AspNetCore.Mvc;
+using StudentRESTAPI.Models;
+
+namespace StudentRESTAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class StudentsController : ControllerBase
+    {
+        private static readonly List<Student> students = new()
+        {
+            new Student
+            {
+                Id = 1,
+                Name = "Rahul",
+                Course = "MCA",
+                Age = 22
+            },
+            new Student
+            {
+                Id = 2,
+                Name = "Priya",
+                Course = "MCA",
+                Age = 21
+            }
+        };
+
+        [HttpGet]
+        public IActionResult GetAllStudents()
+        {
+            return Ok(students);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetStudent(int id)
+        {
+            var student = students.FirstOrDefault(s => s.Id == id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(student);
+        }
+
+        [HttpPost]
+        public IActionResult CreateStudent(Student student)
+        {
+            student.Id = students.Count + 1;
+
+            students.Add(student);
+
+            return CreatedAtAction(
+                nameof(GetStudent),
+                new { id = student.Id },
+                student
+            );
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateStudent(int id, Student updatedStudent)
+        {
+            var student = students.FirstOrDefault(s => s.Id == id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            student.Name = updatedStudent.Name;
+            student.Course = updatedStudent.Course;
+            student.Age = updatedStudent.Age;
+
+            return Ok(student);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteStudent(int id)
+        {
+            var student = students.FirstOrDefault(s => s.Id == id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            students.Remove(student);
+
+            return NoContent();
+        }
+    }
+}
+
+
+program.cs:
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.MapControllers();
+
+app.Run();
+
+get -> RUN -> https:/localhost:****/api/students
+post:
+find pract8.http file:
+@Pract8_HostAddress = http://localhost:5148
+
+GET {{Pract8_HostAddress}}/weatherforecast/
+Accept: application/json
+
+### Create Student
+POST {{Pract8_HostAddress}}/api/students
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "course": "MCA",
+  "age": 20
+}
+
+### Update Student
+PUT {{Pract8_HostAddress}}/api/students/1
+Content-Type: application/json
+
+{
+  "name": "Rahul Patil",
+  "course": "BCA",
+  "age": 23
+}
+
+### Delete Student
+DELETE {{Pract8_HostAddress}}/api/students/2
+Accept: application/json
+
