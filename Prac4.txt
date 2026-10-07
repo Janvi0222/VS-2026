@@ -1,0 +1,315 @@
+new project ->ASP.NET core mvc
+program.cs:
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =&gt;
+{
+options.IdleTimeout = TimeSpan.FromMinutes(30);
+options.Cookie.HttpOnly = true;
+options.Cookie.IsEssential = true;
+});
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+app.UseExceptionHandler(&quot;/Home/Error&quot;);
+app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseSession();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+name: &quot;default&quot;,
+pattern: &quot;{controller=Shopping}/{action=Index}/{id?}&quot;);
+
+app.Run();
+
+
+
+under models folder add class Product.cs and CartItem.cs
+product.cs:
+namespace ShoppingCartApp.Models
+{
+public class Product
+
+{
+public int Id { get; set; }
+
+public string Name { get; set; } = string.Empty;
+
+public decimal Price { get; set; }
+
+public string ImageUrl { get; set; } = string.Empty;
+}
+}
+
+cartitem.cs:
+namespace ShoppingCartApp.Models
+{
+public class CartItem
+{
+public Product Product { get; set; } = new Product();
+
+public int Quantity { get; set; }
+}
+}
+
+
+
+under Controller add class ShoppingController.cs:
+using Microsoft.AspNetCore.Mvc;
+using ShoppingCartApp.Models;
+using System.Text.Json;
+
+namespace ShoppingCartApp.Controllers
+{
+    public class ShoppingController : Controller
+    {
+       
+        private static List<Product> products = new List<Product>
+        {
+            new Product { Id = 1, Name = "Laptop", Price = 55000,
+                ImageUrl = "https://via.placeholder.com/150" },
+
+            new Product { Id = 2, Name = "Mouse", Price = 600,
+                ImageUrl = "https://via.placeholder.com/150" },
+
+            new Product { Id = 3, Name = "Keyboard", Price = 1200,
+                ImageUrl = "https://via.placeholder.com/150" },
+
+            new Product { Id = 4, Name = "Monitor", Price = 9000,
+                ImageUrl = "https://via.placeholder.com/150" }
+        };
+
+  
+        public IActionResult Index()
+        {
+            return View(products);
+        }
+
+       
+        public IActionResult Cart()
+        {
+            var cart = GetCart();
+            return View(cart);
+        }
+
+    
+        public IActionResult AddToCart(int id)
+        {
+            var cart = GetCart();
+
+            var product = products.FirstOrDefault(p => p.Id == id);
+
+            if (product != null)
+            {
+                var item = cart.FirstOrDefault(c => c.Product.Id == id);
+
+                if (item == null)
+                {
+                    cart.Add(new CartItem
+                    {
+                        Product = product,
+                        Quantity = 1
+                    });
+                }
+                else
+                {
+                    item.Quantity++;
+                }
+            }
+
+            SaveCart(cart);
+
+            return RedirectToAction("Index");
+        }
+
+        
+        public IActionResult Remove(int id)
+        {
+            var cart = GetCart();
+
+            var item = cart.FirstOrDefault(c => c.Product.Id == id);
+
+            if (item != null)
+            {
+                cart.Remove(item);
+            }
+
+            SaveCart(cart);
+
+            return RedirectToAction("Cart");
+        }
+
+      
+        public IActionResult ClearCart()
+        {
+            HttpContext.Session.Remove("Cart");
+
+            return RedirectToAction("Cart");
+        }
+
+  
+        private List<CartItem> GetCart()
+        {
+            var cart = HttpContext.Session.GetString("Cart");
+
+            if (string.IsNullOrEmpty(cart))
+            {
+                return new List<CartItem>();
+            }
+
+            return JsonSerializer.Deserialize<List<CartItem>>(cart)!;
+        }
+
+
+        private void SaveCart(List<CartItem> cart)
+        {
+            HttpContext.Session.SetString(
+                "Cart",
+                JsonSerializer.Serialize(cart));
+        }
+    }
+}
+
+
+
+Under Views create folder Shopping--> right click on shopping add View -> razor -> name Index.cshtml
+@model List<ShoppingCartApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h2>Shopping Cart Application</h2>
+
+<a asp-action="Cart" class="btn btn-success mb-3">
+    View Cart
+</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>₹ @item.Price</td>
+
+                <td>
+                    <a asp-action="AddToCart"
+                       asp-route-id="@item.Id"
+                       class="btn btn-primary">
+                        Add To Cart
+                    </a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+again right click on shopping -> add views -> razor -> Cart.cshtml
+@model List<ShoppingCartApp.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Cart";
+    decimal total = 0;
+}
+
+<h2>Shopping Cart</h2>
+
+<a asp-action="Index" class="btn btn-secondary mb-3">
+    Continue Shopping
+</a>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">
+        Cart is Empty.
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+
+        <thead class="table-dark">
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+                decimal itemTotal = item.Product.Price * item.Quantity;
+                total += itemTotal;
+
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>₹ @item.Product.Price</td>
+                    <td>@item.Quantity</td>
+                    <td>₹ @itemTotal</td>
+
+                    <td>
+                        <a asp-action="Remove"
+                           asp-route-id="@item.Product.Id"
+                           class="btn btn-danger">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+
+            <tr>
+                <td colspan="3">
+                    <b>Grand Total</b>
+                </td>
+
+                <td colspan="2">
+                    <b>₹ @total</b>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <a asp-action="ClearCart"
+       class="btn btn-warning">
+        Clear Cart
+    </a>
+}
+
+Ctr+shift+b= build and run
