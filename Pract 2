@@ -1,0 +1,88 @@
+Step 1: Create the main project
+1. Open Visual Studio.
+2. Click Create a new project.
+3. Search Class Library.
+4. Select Class Library → Next.
+5. Project name:
+CalculatorApp
+6. Select the framework available in your college, e.g. .NET 8.0.
+7. Click Create.
+Step 2: Create the testing project
+In Solution Explorer:
+1. Right-click the Solution.
+2. Select:
+Add → New Project
+3. Search:
+xUnit
+4. Select xUnit Test Project.
+5. Project name:
+CalculatorApp.Tests
+6. Click Create. Your solution should look like:
+Solution
+│
+├── CalculatorApp
+│ └── Class1.cs
+│
+└── CalculatorApp.Tests
+└── UnitTest1.cs
+Step 3: Add project reference
+The test project needs access to CalculatorApp.
+1. Right-click:
+CalculatorApp.Tests
+2. Select Add → Project Reference.
+3. Tick:
+CalculatorApp
+4. Click OK.
+Now the test project can use the Calculator class.
+Step 4: Create Calculator class
+Inside:
+CalculatorApp
+Right-click → Add → Class
+Name: Calculator.cs
+Replace the code with:
+namespace CalculatorApp;
+public class Calculator
+{
+public int Add(int a, int b)
+{
+return a + b;
+}
+public int Subtract(int a, int b)
+{
+return a - b;
+}
+}
+Save with Ctrl + S.
+Step 5: Write test cases
+Open:
+CalculatorApp.Tests
+└── UnitTest1.cs
+Replace everything with:
+using CalculatorApp;
+namespace CalculatorApp.Tests;
+public class UnitTest1 {
+[Fact]
+public void Add_TwoNumbers_ReturnsCorrectResult()
+{
+Calculator calculator = new Calculator();
+int result = calculator.Add(10, 20);
+Assert.Equal(30, result);
+}
+[Fact]
+public void Subtract_TwoNumbers_ReturnsCorrectResult()
+{
+Calculator calculator = new Calculator();
+int result = calculator.Subtract(20, 10);
+Assert.Equal(10, result);
+}
+}
+Save.
+Step 6: Run the tests
+Go to:
+Test → Test Explorer
+Then click:
+Run All Tests You should see:
+Passed: 2
+Failed: 0
+Skipped: 0
+Green checkmarks mean the tests passed.
