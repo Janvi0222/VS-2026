@@ -1,0 +1,224 @@
+create ASP.NET core MVC application -> StudentMVC
+AFTER creating -> add controller -> StudentController
+using Microsoft.AspNetCore.Mvc;
+
+namespace StudentMVCApp.Controllers
+{
+    public class StudentController : Controller
+    {
+        public IActionResult Index()
+        {
+            ViewBag.RollNo = 101;
+            ViewBag.Name = "Rahul Sharma";
+            ViewBag.Course = "B.Sc. Computer Applications";
+            ViewBag.Marks = 85;
+
+            return View();
+        }
+
+        public IActionResult Details()
+        {
+            ViewBag.RollNo = 101;
+            ViewBag.Name = "Rahul Sharma";
+            ViewBag.Course = "B.Sc. Computer Applications";
+            ViewBag.Email = "rahul@example.com";
+            ViewBag.City = "Mumbai";
+            ViewBag.Marks = 85;
+
+            return View();
+        }
+    }
+}
+
+add views -> create folder student -> add views -> index.cshtml
+@{
+    ViewData["Title"] = "Student Information";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Student Information</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #cccccc;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #cccccc;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .button {
+            display: block;
+            width: 150px;
+            margin: 20px auto 0;
+            padding: 10px;
+            text-align: center;
+            background-color: #333333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Student Information</h1>
+
+        <table>
+            <tr>
+                <td class="label">Roll Number</td>
+                <td>@ViewBag.RollNo</td>
+            </tr>
+
+            <tr>
+                <td class="label">Name</td>
+                <td>@ViewBag.Name</td>
+            </tr>
+
+            <tr>
+                <td class="label">Course</td>
+                <td>@ViewBag.Course</td>
+            </tr>
+
+            <tr>
+                <td class="label">Marks</td>
+                <td>@ViewBag.Marks</td>
+            </tr>
+        </table>
+
+        <a class="button"
+           href="/Student/Details">
+            View Details
+        </a>
+
+    </div>
+
+</body>
+</html>
+
+
+view -> Details.cshtml
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Student Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #cccccc;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        p {
+            padding: 8px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Student Details</h1>
+
+        <p>
+            <span class="label">Roll Number:</span>
+            @ViewBag.RollNo
+        </p>
+
+        <p>
+            <span class="label">Name:</span>
+            @ViewBag.Name
+        </p>
+
+        <p>
+            <span class="label">Course:</span>
+            @ViewBag.Course
+        </p>
+
+        <p>
+            <span class="label">Email:</span>
+            @ViewBag.Email
+        </p>
+
+        <p>
+            <span class="label">City:</span>
+            @ViewBag.City
+        </p>
+
+        <p>
+            <span class="label">Marks:</span>
+            @ViewBag.Marks
+        </p>
+
+        <a class="back" href="/Student/Index">
+            Back to Student Information
+        </a>
+
+    </div>
+
+</body>
+</html>
+
+
