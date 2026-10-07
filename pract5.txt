@@ -1,4 +1,5 @@
 Add -> Asp.net core web app mvc
+Authentication Type: Select Individual Accounts.
 
 Controller -> Add controller -> SecurityController.cs
 using Microsoft.AspNetCore.Authorization;
